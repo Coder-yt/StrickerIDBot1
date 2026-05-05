@@ -1,0 +1,109 @@
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
+from pyrogram import Client, filters
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
+from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID
+from keep_alive import keep_alive
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
+from start import start_handler
+from sticker import ask_sticker, handle_sticker
+from callback import callback_handler
+from database import get_stats, get_all_users
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
+bot = Client("StickerBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+broadcast_mode = set()
+
+# ================= START =================
+@bot.on_message(filters.command("start"))
+def start(_, msg):
+    start_handler(bot, msg)
+
+# ================= STICKER =================
+@bot.on_message(filters.command("stickerid"))
+def ask(_, msg):
+    ask_sticker(bot, msg)
+
+@bot.on_message(filters.sticker)
+def sticker(_, msg):
+    handle_sticker(bot, msg)
+
+# ================= STATS (OWNER ONLY) =================
+@bot.on_message(filters.command("stats"))
+def stats(_, msg):
+    if msg.from_user.id != OWNER_ID:
+        msg.reply_text("Yᴏᴜ Aʀᴇ Nᴏᴛ Mʏ Mᴀsᴛᴇʀ.")
+        return
+
+    users, stickers = get_stats()
+    msg.reply_text(f"👥 Tᴏᴛᴀʟ Usᴇʀs:: {users}\n🎯 Tᴏᴛᴀʟ Sᴛɪᴄᴋᴇʀs: {stickers}")
+
+# ================= BROADCAST (OWNER ONLY) =================
+@bot.on_message(filters.command("broadcast"))
+def broadcast(_, msg):
+    if msg.from_user.id != OWNER_ID:
+        msg.reply_text("Yᴏᴜ Aʀᴇ Nᴏᴛ Mʏ Mᴀsᴛᴇʀ")
+        return
+
+    broadcast_mode.add(msg.from_user.id)
+    msg.reply_text("📢 Sᴇɴᴅ Mᴇssᴀɢᴇ Tᴏ Bʀᴏᴀᴅᴄᴀsᴛ")
+
+@bot.on_message(filters.text)
+def send_broadcast(_, msg):
+    if msg.from_user.id not in broadcast_mode:
+        return
+
+    users = get_all_users()
+
+    ok = 0
+    fail = 0
+
+    for u in users:
+        try:
+            bot.send_message(u[0], msg.text)
+            ok += 1
+        except:
+            fail += 1
+
+    msg.reply_text(f"📢 𝗗𝗼𝗻𝗲\n✔ {ok}\n❌ {fail}")
+
+    broadcast_mode.remove(msg.from_user.id)
+
+# ================= CALLBACK =================
+@bot.on_callback_query()
+def cb(_, q):
+    callback_handler(bot, q)
+
+# ================= START BOT =================
+if __name__ == "__main__":
+    keep_alive()
+    print("Bot Running...")
+    bot.run()
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
