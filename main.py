@@ -22,6 +22,7 @@ from sticker import ask_sticker, handle_sticker
 from callback import callback_handler
 from database import get_stats, get_all_users, add_channel, remove_channel, get_channels
 from utils import START_TIME, VERSION 
+import asyncio 
 
 bot = Client("StickerBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -35,37 +36,31 @@ broadcast_mode = set()
 
 # ================= START =================
 @bot.on_message(filters.command("start"))
-def start(_, msg):
+async def start(_, msg):
 
-    import asyncio
-
-    loop = bot.loop
-    ok = loop.run_until_complete(check_user(bot, msg.from_user.id))
+    ok = await check_user(bot, msg.from_user.id)
 
     if not ok:
-        return msg.reply_text(
-            "›› ‼️ ʟᴏᴏᴋs ʟɪᴋᴇ ʏᴏᴜ ʜᴀᴠᴇɴ'ᴛ ᴊᴏɪɴᴇᴅ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟs ʏᴇᴛ, sᴜʙsᴄʀɪʙᴇ ɴᴏw...",
+        return await msg.reply_text(
+            "›› ‼️ ʟᴏᴏᴋs ʟɪᴋᴇ ʏᴏᴜ ʜᴀᴠᴇɴ'ᴛ ᴊᴏɪɴᴇᴅ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟs ʏᴇᴛ",
             reply_markup=join_buttons()
         )
 
-    start_handler(bot, msg)
+    await start_handler(bot, msg)
 
 # ================= STICKER =================
 @bot.on_message(filters.command("stickerid"))
-def ask(_, msg):
+async def ask(_, msg):
 
-    import asyncio
-    loop = bot.loop
-    ok = loop.run_until_complete(check_user(bot, msg.from_user.id))
+    ok = await check_user(bot, msg.from_user.id)
 
     if not ok:
-        return msg.reply_text(
-            "›› ‼️ ʟᴏᴏᴋs ʟɪᴋᴇ ʏᴏᴜ ʜᴀᴠᴇɴ'ᴛ ᴊᴏɪɴᴇᴅ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟs ʏᴇᴛ, sᴜʙsᴄʀɪʙᴇ ɴᴏw...",
+        return await msg.reply_text(
+            "›› ‼️ ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟs ғɪʀsᴛ",
             reply_markup=join_buttons()
         )
 
-    ask_sticker(bot, msg)
-
+    await ask_sticker(bot, msg)
 # ================= STATS (OWNER ONLY) =================
 @bot.on_message(filters.command("stats"))
 def stats(_, msg):
